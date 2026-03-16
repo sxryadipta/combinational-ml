@@ -7,9 +7,8 @@ def bpnn():
     model = MLPRegressor(
         hidden_layer_sizes=(15,15),
         activation='tanh',
-        solver='sgd',
-        learning_rate_init=0.25,
-        max_iter=750,
+        solver='lbfgs',
+        max_iter=5000,
         random_state=42
     )
 
@@ -19,8 +18,9 @@ def bpnn():
 def random_forest():
 
     model = RandomForestRegressor(
-        n_estimators=500,
-        max_depth=12,
+        n_estimators=750,
+        max_depth=15,
+        min_samples_split=2,
         random_state=42
     )
 
