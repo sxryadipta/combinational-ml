@@ -1,6 +1,8 @@
-from src.load_data import load_dataset
-from src.models import bpnn, random_forest
+from src.load_data import load_dataset        
+from src.models import get_rf
 from src.evaluate import evaluate
+
+from sklearn.model_selection import GridSearchCV
 
 
 def run(train_path, test_path):
@@ -8,14 +10,25 @@ def run(train_path, test_path):
     X_train, y_train = load_dataset(train_path)
     X_test, y_test = load_dataset(test_path)
 
-    bp = bpnn()
-    rf = random_forest()
+    param_grid = {
+        "n_estimators": [500, 800, 1200],
+        "max_depth": [10, 15, None],
+        "min_samples_split": [2, 3]
+    }
 
-    bp.fit(X_train, y_train)
-    rf.fit(X_train, y_train)
+    grid = GridSearchCV(
+        get_rf(),
+        param_grid,
+        cv=5,
+        scoring="neg_mean_squared_error"
+    )
 
-    print("BPNN")
-    print(evaluate(bp, X_test, y_test))
+    grid.fit(X_train, y_train)
 
-    print("Random Forest")
-    print(evaluate(rf, X_test, y_test))
+    model = grid.best_estimator_
+
+    print("Best Params:", grid.best_params_)
+
+    results = evaluate(model, X_test, y_test)
+
+    return results
